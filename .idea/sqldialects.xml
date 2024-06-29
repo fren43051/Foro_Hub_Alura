@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="SqlDialectMappings">
+    <file url="file://$PROJECT_DIR$/foro_hub/src/main/resources/db/migration/V1__CreatePerfilTable.sql" dialect="MySQL" />
+    <file url="file://$PROJECT_DIR$/foro_hub/src/main/resources/db/migration/V2__CreateUsuarioTable.sql" dialect="MySQL" />
+    <file url="file://$PROJECT_DIR$/foro_hub/src/main/resources/db/migration/V3__CreateCursoTable.sql" dialect="MySQL" />
+    <file url="file://$PROJECT_DIR$/foro_hub/src/main/resources/db/migration/V4__CreateTopicoTable.sql" dialect="MySQL" />
+    <file url="file://$PROJECT_DIR$/foro_hub/src/main/resources/db/migration/V5__CreateRespuestaTable.sql" dialect="MySQL" />
+    <file url="file://$PROJECT_DIR$/foro_hub/src/main/resources/db/migration/V6__InsertData.sql" dialect="MySQL" />
+  </component>
+</project>
