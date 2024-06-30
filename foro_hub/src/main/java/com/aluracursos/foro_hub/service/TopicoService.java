@@ -1,6 +1,6 @@
 package com.aluracursos.foro_hub.service;
 
-
+import com.aluracursos.foro_hub.config.DuplicateTopicException;
 import com.aluracursos.foro_hub.dto.TopicoRecord;
 import com.aluracursos.foro_hub.dto.TopicoResponse;
 import com.aluracursos.foro_hub.enums.StatusTopico;
@@ -11,12 +11,13 @@ import com.aluracursos.foro_hub.repository.CursoRepository;
 import com.aluracursos.foro_hub.repository.TopicoRepository;
 import com.aluracursos.foro_hub.repository.UsuarioRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-
-import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 public class TopicoService {
@@ -35,6 +36,12 @@ public class TopicoService {
                 .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
         Curso curso = cursoRepository.findByNombre(topicoRecord.nombreCurso())
                 .orElseThrow(() -> new RuntimeException("Curso no encontrado"));
+
+        // Verificar si ya existe un tópico con el mismo título y mensaje
+        if (topicoRepository.findByTituloAndMensaje(topicoRecord.titulo(), topicoRecord.mensaje()).isPresent()) {
+            throw new DuplicateTopicException("Este tópico ya está registrado en su base de datos.");
+        }
+
 
         Topico topico = new Topico();
         topico.setTitulo(topicoRecord.titulo());
@@ -59,20 +66,24 @@ public class TopicoService {
         );
     }
 
-    public List<TopicoResponse> listarTopicos() {
-        return topicoRepository.findAll().stream()
-                .map(topico -> new TopicoResponse(
-                        topico.getId(),
-                        topico.getTitulo(),
-                        topico.getMensaje(),
-                        topico.getFechaCreacion(),
-                        topico.getStatus(),
-                        topico.getAutor().getId(),
-                        topico.getAutor().getNombre(),
-                        topico.getCurso().getId(),
-                        topico.getCurso().getNombre()
-                ))
-                .collect(Collectors.toList());
+    public Page<TopicoResponse> listarTopicos(int page, int size, String sort, String order) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.fromString(order), sort));
+        return topicoRepository.findAll(pageable)
+                .map(this::convertirTopicoAResponse);
+    }
+
+    private TopicoResponse convertirTopicoAResponse(Topico topico) {
+        return new TopicoResponse(
+                topico.getId(),
+                topico.getTitulo(),
+                topico.getMensaje(),
+                topico.getFechaCreacion(),
+                topico.getStatus(),
+                topico.getAutor().getId(),
+                topico.getAutor().getNombre(),
+                topico.getCurso().getId(),
+                topico.getCurso().getNombre()
+        );
     }
 
     public TopicoResponse actualizarTopico(Long id, TopicoRecord topicoRecord) {
@@ -110,5 +121,3 @@ public class TopicoService {
         topicoRepository.delete(topico);
     }
 }
-
-

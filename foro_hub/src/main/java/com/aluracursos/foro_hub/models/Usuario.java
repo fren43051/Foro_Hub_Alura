@@ -2,9 +2,6 @@ package com.aluracursos.foro_hub.models;
 
 import jakarta.persistence.*;
 
-/**
- * Entidad que representa un usuario en el foro.
- */
 @Entity
 @Table(name = "usuario")
 public class Usuario {
@@ -62,4 +59,5 @@ public class Usuario {
         this.perfil = perfil;
     }
 }
+
 
