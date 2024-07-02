@@ -68,8 +68,20 @@ public class TopicoService {
 
     public Page<TopicoResponse> listarTopicos(int page, int size, String sort, String order) {
         Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.fromString(order), sort));
-        return topicoRepository.findAll(pageable)
+        return topicoRepository.findAllByStatus(StatusTopico.ABIERTO, pageable)
                 .map(this::convertirTopicoAResponse);
+    }
+
+    public Page<TopicoResponse> listarTopicosCerrados(int page, int size, String sort, String order) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.fromString(order), sort));
+        Page<TopicoResponse> topicosCerrados = topicoRepository.findAllByStatus(StatusTopico.CERRADO, pageable)
+                .map(this::convertirTopicoAResponse);
+
+        if (topicosCerrados.isEmpty()) {
+            throw new RuntimeException("No hay tópicos cerrados."); // O una excepción más específica
+        }
+
+        return topicosCerrados;
     }
 
     private TopicoResponse convertirTopicoAResponse(Topico topico) {
@@ -86,6 +98,7 @@ public class TopicoService {
         );
     }
 
+    // En TopicoService.java
     public TopicoResponse actualizarTopico(Long id, TopicoRecord topicoRecord) {
         Topico topico = topicoRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Tópico no encontrado"));
@@ -100,6 +113,12 @@ public class TopicoService {
         topico.setAutor(autor);
         topico.setCurso(curso);
 
+        // Si el tópico está CERRADO, cámbialo a ABIERTO
+        if (topico.getStatus() == StatusTopico.CERRADO) {
+            topico.setStatus(StatusTopico.ABIERTO);
+        }
+
+        // Guarda el tópico actualizado
         topico = topicoRepository.save(topico);
 
         return new TopicoResponse(
@@ -118,6 +137,8 @@ public class TopicoService {
     public void eliminarTopico(Long id) {
         Topico topico = topicoRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Tópico no encontrado"));
-        topicoRepository.delete(topico);
+
+        topico.setStatus(StatusTopico.CERRADO); // Cambiar el estado
+        topicoRepository.save(topico); // Guardar el cambio
     }
 }

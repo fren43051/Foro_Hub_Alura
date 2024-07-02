@@ -68,9 +68,25 @@ public class TopicoController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> eliminarTopico(@PathVariable Long id) {
+    public ResponseEntity<Map<String, String>> eliminarTopico(@PathVariable Long id) {
         topicoService.eliminarTopico(id);
-        return ResponseEntity.noContent().build();
+        return ResponseEntity.ok(Map.of("message", "Tópico eliminado"));
+    }
+
+
+    @GetMapping("/cerrados")
+    public ResponseEntity<Map<String, Object>> listarTopicosCerrados(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "fechaCreacion") String sort,
+            @RequestParam(defaultValue = "asc") String order
+    ) {
+        try {
+            Page<TopicoResponse> responses = topicoService.listarTopicosCerrados(page, size, sort, order);
+            return ResponseEntity.ok(Map.of("topicos", responses));
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("mensaje", e.getMessage()));
+        }
     }
 }
 

@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/auth")
+@RequestMapping
 public class AuthController {
 
     @Autowired
@@ -42,7 +42,8 @@ public class AuthController {
                     new UsernamePasswordAuthenticationToken(authenticationRequest.getNombre(), authenticationRequest.getContrasena())
             );
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Nombre de usuario o contraseña incorrectos");
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body("{ \"error\": \"INVALID_CREDENTIALS\", \"message\": \"Nombre de usuario o contraseña incorrectos.\" }");
         }
 
         final UserDetails userDetails = userService.loadUserByUsername(authenticationRequest.getNombre());
