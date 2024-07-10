@@ -5,6 +5,8 @@ import com.aluracursos.foro_hub.repository.UsuarioRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 public class UsuarioService {
 
@@ -20,6 +22,9 @@ public class UsuarioService {
             throw new IllegalArgumentException("El correo electrónico ya está en uso.");
         }
         return usuarioRepository.save(usuario);
+    }
+    public List<Usuario> listarUsuarios() {
+        return usuarioRepository.findAll();
     }
 }
 
